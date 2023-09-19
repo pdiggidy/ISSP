@@ -1,0 +1,27 @@
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
+
+// Serve static files (HTML, CSS, JS)
+app.use(express.static('public'));
+
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  // Handle real-time updates and emit data to clients
+  // Example:
+  setInterval(() => {
+    const randomValue = Math.random() * 100; // Replace with your data source
+    socket.emit('update', { value: randomValue });
+  }, 1000);
+});
+
+const port = process.env.PORT || 3000;
+
+server.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});

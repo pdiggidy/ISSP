@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plotly Line Graph with Most Recent Value</title>
+    <!-- Include Plotly.js from a CDN -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <!-- Create a div element to hold the most recent value -->
+    <h1>Current Percentage:</h1>
+    <div id="mostRecentValue">Loading...</div>
+
+    <!-- Create a div element to hold the Plotly graph -->
+    <div id="lineGraph"></div>
+
+    <script>
+         // Function to parse the timestamp from the format "2023-09-18-22:42:18"
+        function parseTimestamp(timestamp) {
+            const parts = timestamp.split('-');
+            if (parts.length === 4) {
+                const timeParts = parts[3].split(':');
+                if (timeParts.length === 3) {
+                    const [year, month, day] = parts.map(parseFloat);
+                    const [hours, minutes, seconds] = timeParts.map(parseFloat);
+                    return new Date(year, month - 1, day, hours, minutes, seconds);
+                }
+            }
+            return null;
+        }  
+
+        // Function to load and plot data from a file
+        function plotData() {
+            // Read data from the "NODE3000005.txt" file (replace with your file path)
+            fetch('data/NODE3000005.txt')
+                .then(response => response.text())
+                .then(data => {
+                    const lines = data.split('\n');
+                    const timestamps = [];
+                    const values = [];
+
+                    // Get the current date and time
+                    const now = new Date();
+
+                    // Parse the data and filter for the last 24 hours
+                    for (const line of lines) {
+                        const [timestamp, value] = line.split(' ');
+                        if (timestamp && value) {
+                            const timestampDate = parseTimestamp(timestamp);
+                            console.log(timestampDate);
+                            if (timestampDate) {
+                                const timeDifference = now - timestampDate;
+                                // Include data points from the last 24 hours
+                                if (timeDifference <= 24 * 60 * 60 * 1000) {
+                                    timestamps.push(timestampDate.toLocaleTimeString());
+                                    values.push(parseFloat(value));
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Update Most Recent Value div to be last value in the array
+                    document.getElementById('mostRecentValue').innerHTML = values[values.length - 1];
+
+
+                    // Create a Plotly trace for the line graph
+                    const trace = {
+                        x: timestamps,
+                        y: values,
+                        mode: 'lines',
+                        type: 'scatter',
+                        name: 'NODE3000005 Data'
+                    };
+
+                    // Define the layout for the graph
+                    const layout = {
+                        title: 'NODE3000005 Data',
+                        xaxis: {
+                            title: 'Time',  // Change x-axis title to "Time"
+                            tickangle: -45,  // Set X-axis tick angle to 45 degrees
+                        },
+                        yaxis: {
+                            title: 'Value',
+                            range: [0, 100],  // Set Y-axis range from 0 to 100
+                        },
+                    };
+
+                    // Create the Plotly graph
+                    Plotly.newPlot('lineGraph', [trace], layout);
+
+                })
+                .catch(error => console.error('Error reading data:', error));
+        }
+
+        // Call the function to load and plot data when the page loads
+        window.onload = plotData;
+    </script>
+</body>
+</html>
