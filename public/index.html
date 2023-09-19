@@ -95,6 +95,14 @@
 
         // Call the function to load and plot data when the page loads
         window.onload = plotData;
+
+        // Listen for the custom event and update the graph
+        
+        document.addEventListener('updateEvent', () => {
+        // Call plotData to refresh the graph when the event is received
+        time.sleep(5);
+        plotData();
+        });
     </script>
 </body>
 </html>
