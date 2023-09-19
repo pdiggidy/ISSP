@@ -14,10 +14,10 @@ io.on('connection', (socket) => {
 
   // Handle real-time updates and emit data to clients
   // Example:
-  setInterval(() => {
-    const randomValue = Math.random() * 100; // Replace with your data source
-    socket.emit('update', { value: randomValue });
-  }, 1000);
+//   setInterval(() => {
+//     const randomValue = Math.random() * 100; // Replace with your data source
+//     socket.emit('update', { value: randomValue });
+//   }, 1000);
 });
 
 const port = process.env.PORT || 3000;
